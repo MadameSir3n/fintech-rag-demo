@@ -1,85 +1,76 @@
 # FinTech RAG Demo
 
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-green.svg)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18%2B-blue.svg)](https://reactjs.org)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--3.5%2B-purple.svg)](https://openai.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-blue.svg)](https://postgresql.org)
+A RAG pipeline that extracts structured financial data from invoice text using an LLM, scores confidence per field, and stores validated records via a REST API.
 
-A Dockerized fintech RAG validation pipeline with FastAPI, LangChain, OpenAI, and PostgreSQL for structured financial data extraction and validation.
+---
 
-## Architecture
+## Problem
 
-```
-┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐
-│   React     │───▶│   FastAPI    │───▶│  LangChain   │───▶│ PostgreSQL  │
-│  Frontend   │    │     API      │    │  + OpenAI    │    │     DB      │
-└─────────────┘    └──────────────┘    └──────────────┘    └─────────────┘
-```
+Finance teams process thousands of invoices manually — copying vendor names, amounts, and line items into systems of record. Unstructured documents can't be ingested directly, and manual data entry is slow and error-prone at scale.
 
-## Features
+## Solution
 
-- Structured invoice data extraction using LLMs
-- Confidence scoring for extracted fields
-- Data validation API with error reporting
-- PostgreSQL persistence for normalized records
+This pipeline accepts raw invoice text, sends it through an LLM extraction prompt via LangChain, scores the confidence of each extracted field, validates the result, and persists structured records to a database through a REST API.
+
+## Key Features
+
+- LLM-powered field extraction (vendor, amount, line items, due dates)
+- Per-field confidence scoring on every extraction
+- Validation API that rejects low-confidence records before persistence
+- PostgreSQL-backed storage for audited, normalized records
 - React frontend for demo visualization
+- Fully Dockerized for single-command deployment
 
-## Quick Start
+## Tech Stack
+
+- **Python** — backend logic
+- **FastAPI** — REST API layer
+- **LangChain + OpenAI** — LLM extraction pipeline
+- **PostgreSQL** — structured record storage
+- **React** — demo frontend
+- **Docker / Docker Compose** — deployment
+
+## Example Flow
+
+```
+1. POST /validate  →  { "text": "Invoice from Acme Corp, $2,400.00, due 2024-03-15" }
+2. LangChain sends text to OpenAI with structured extraction prompt
+3. LLM returns:  { "vendor": "Acme Corp", "amount": 2400.00, "due_date": "2024-03-15" }
+4. Confidence scored per field:  vendor=0.97, amount=0.99, due_date=0.91
+5. Passes threshold → record written to PostgreSQL
+6. Response:  { "invoice_id": "inv_0042", "status": "validated", "confidence": 0.96 }
+```
+
+## How to Run
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/fintech-rag-demo.git
+git clone https://github.com/MadameSir3n/fintech-rag-demo.git
 cd fintech-rag-demo
+pip install -r backend/requirements.txt
+python -m pytest tests/ -v
+```
 
-# Start the application
+Or with Docker:
+
+```bash
 docker-compose up
-
-# The app will be available at:
-# - Frontend: http://localhost:3000
-# - API Docs: http://localhost:8000/docs
+# API Docs: http://localhost:8000/docs
+# Frontend:  http://localhost:3000
 ```
 
-## API Endpoints
-
-- `POST /validate` - Validate invoice data and extract fields
-- `GET /invoices` - List all processed invoices
-- `GET /invoices/{id}` - Get specific invoice details
-
-## Project Structure
+## Sample Test Output
 
 ```
-fintech-rag-demo/
-├── docker-compose.yml          # Docker orchestration
-├── backend/                    # FastAPI application
-│   ├── main.py                 # API entry point
-│   ├── models.py               # Data models
-│   ├── extraction.py           # LLM extraction logic
-│   ├── database.py             # Database connection
-│   └── requirements.txt        # Python dependencies
-├── frontend/                   # React application
-│   ├── src/
-│   │   ├── App.js              # Main component
-│   │   └── components/         # UI components
-│   └── package.json            # Node dependencies
-├── data/                       # Sample data
-│   └── mock_invoices.csv       # Sample invoices
-└── tests/                      # Test suite
-    ├── test_extraction.py      # Extraction tests
-    └── test_api.py             # API tests
+tests/test_api.py::test_validate_invoice PASSED
+tests/test_api.py::test_list_invoices PASSED
+tests/test_api.py::test_get_invoice PASSED
+tests/test_api.py::test_invalid_invoice_rejected PASSED
+tests/test_api.py::test_health_check PASSED
+tests/test_api.py::test_confidence_scoring PASSED
+
+6 passed in 1.24s
 ```
 
-## Future Work
+## Why This Matters
 
-- [ ] Add extraction accuracy metrics
-- [ ] Implement cost tracking per invoice
-- [ ] Add latency monitoring
-- [ ] Support additional document formats (PDF, images)
-- [ ] Batch processing capabilities
-
-## Metrics
-
-- Average extraction time: < 2 seconds
-- Confidence threshold: > 80%
-- Cost per invoice: ~$0.005
+Unstructured document processing is one of the most common real-world AI use cases in enterprise. This project demonstrates how to build a reliable extraction pipeline with the validation and confidence scoring that production systems actually need — not just a demo that calls an LLM and prints the result.
