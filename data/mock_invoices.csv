@@ -1,0 +1,11 @@
+invoice_number,invoice_date,supplier_name,total_amount,currency
+INV-2023-001,2023-01-15,"Tech Solutions Inc.",1250.00,USD
+INV-2023-002,2023-01-20,"Cloud Services LLC",3400.50,USD
+INV-2023-003,2023-02-01,"Software Development Corp",7800.75,USD
+INV-2023-004,2023-02-05,"Marketing Agency Ltd",2100.00,USD
+INV-2023-005,2023-02-10,"Consulting Partners",4500.00,USD
+INV-2023-006,2023-02-15,"Hardware Suppliers Inc",1850.25,USD
+INV-2023-007,2023-02-20,"Network Solutions LLC",5200.00,USD
+INV-2023-008,2023-03-01,"Data Analytics Corp",3750.80,USD
+INV-2023-009,2023-03-05,"Security Systems Ltd",6200.00,USD
+INV-2023-010,2023-03-10,"Training Institute",1950.50,USD
