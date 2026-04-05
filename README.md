@@ -1,5 +1,12 @@
 # FinTech RAG Demo
 
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-green.svg)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18%2B-blue.svg)](https://reactjs.org)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--3.5%2B-purple.svg)](https://openai.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-blue.svg)](https://postgresql.org)
+
 A Dockerized fintech RAG validation pipeline with FastAPI, LangChain, OpenAI, and PostgreSQL for structured financial data extraction and validation.
 
 ## Architecture
