@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -7,6 +7,11 @@ function App() {
   const [validationResult, setValidationResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [invoices, setInvoices] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   const handleValidate = async () => {
     if (!invoiceText.trim()) return;
@@ -17,9 +22,10 @@ function App() {
         invoice_text: invoiceText
       });
       setValidationResult(response.data);
+      fetchInvoices(); // Refresh invoice list
     } catch (error) {
       console.error('Validation error:', error);
-      alert('Error validating invoice');
+      alert('Error validating invoice. Make sure the backend is running.');
     }
     setLoading(false);
   };

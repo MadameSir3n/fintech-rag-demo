@@ -1,26 +1,64 @@
 import re
+import json
 from typing import Dict, List, Tuple
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 import os
+from openai import OpenAI
 
-# Initialize LLM (in production, you'd use a proper API key)
-llm = ChatOpenAI(
-    openai_api_key=os.getenv("OPENAI_API_KEY", "sk-fake-key-for-demo"),
-    temperature=0,
-    model_name="gpt-3.5-turbo"
-)
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "sk-fake-key-for-demo"))
 
 def extract_invoice_fields(invoice_text: str) -> Tuple[Dict, float]:
     """
-    Extract fields from invoice text using LLM.
+    Extract fields from invoice text using OpenAI GPT.
     Returns extracted fields and confidence score.
     """
-    # In a real implementation, this would use LangChain with OpenAI
-    # For demo purposes, we'll simulate extraction with pattern matching
-    
-    # Simulated extraction with confidence scoring
+    try:
+        # Use OpenAI for structured extraction
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """You are an expert at extracting structured data from invoices. 
+                    Extract the following fields: invoice_number, invoice_date, supplier_name, 
+                    total_amount, currency, line_items. Return valid JSON with these fields.
+                    
+                    For line_items, provide an array of objects with: description, quantity, unit_price, total.
+                    
+                    Return format: {"fields": {...}, "confidence": 0.95}"""
+                },
+                {
+                    "role": "user",
+                    "content": f"Extract structured data from this invoice:\n\n{invoice_text}"
+                }
+            ],
+            temperature=0.1,
+            max_tokens=1000
+        )
+        
+        # Parse the response
+        content = response.choices[0].message.content
+        
+        # Extract JSON from response
+        json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(1)
+        else:
+            json_str = content
+        
+        result = json.loads(json_str)
+        fields = result.get("fields", {})
+        confidence = result.get("confidence", 0.8)
+        
+        return fields, confidence
+        
+    except Exception as e:
+        # Fallback to regex extraction if OpenAI fails
+        print(f"OpenAI extraction failed: {e}")
+        return fallback_extraction(invoice_text)
+
+def fallback_extraction(invoice_text: str) -> Tuple[Dict, float]:
+    """Fallback extraction using regex patterns"""
     fields = {}
     confidence_scores = []
     
