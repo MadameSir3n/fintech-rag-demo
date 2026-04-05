@@ -46,17 +46,30 @@ This pipeline accepts raw invoice text, sends it through an LLM extraction promp
 ```bash
 git clone https://github.com/MadameSir3n/fintech-rag-demo.git
 cd fintech-rag-demo
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
+python main.py
+# API: http://localhost:8000
+# Docs: http://localhost:8000/docs
+```
+
+Run tests:
+
+```bash
 python -m pytest tests/ -v
 ```
 
-Or with Docker:
+Or with Docker (includes PostgreSQL + frontend):
 
 ```bash
 docker-compose up
-# API Docs: http://localhost:8000/docs
-# Frontend:  http://localhost:3000
 ```
+
+## Known Limitations
+
+- Full LLM extraction requires an OpenAI API key set in `.env`
+- Production deployment uses PostgreSQL; local tests use SQLite
+- Some components are still being refined
+- This is an active development system
 
 ## Sample Test Output
 
